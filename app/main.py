@@ -16,7 +16,7 @@ os.makedirs(settings.UPLOAD_DIRECTORY, exist_ok=True)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="TuckerLa Freezer Tracker",
+    title="TukkerLa Freezer Tracker",
     description="API for managing freezer food inventory with image and barcode support",
     version="1.0.0"
 )
@@ -46,7 +46,7 @@ app.include_router(locations.router)
 def read_root():
     """Root endpoint that returns a welcome message."""
     return {
-        "message": "Welcome to TuckerLa Freezer Tracker API",
+        "message": "Welcome to TukkerLa Freezer Tracker API",
         "docs_url": "/docs",
         "version": "1.0.0"
     }

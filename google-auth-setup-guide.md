@@ -1,6 +1,6 @@
-# Setting Up Google Authentication for TuckerLa
+# Setting Up Google Authentication for TukkerLa
 
-This guide walks you through setting up Google Authentication for your TuckerLa application.
+This guide walks you through setting up Google Authentication for your TukkerLa application.
 
 ## 1. Create a Google Cloud Project
 
@@ -13,7 +13,7 @@ This guide walks you through setting up Google Authentication for your TuckerLa 
 1. Click on "OAuth consent screen" in the sidebar
 2. Select "External" user type (or "Internal" if this is only for your organization)
 3. Fill in the required information:
-   - App name: "TuckerLa"
+   - App name: "TukkerLa"
    - User support email: Your email
    - Developer contact information: Your email
 4. Click "Save and Continue"
@@ -30,7 +30,7 @@ This guide walks you through setting up Google Authentication for your TuckerLa 
 1. Click on "Credentials" in the sidebar
 2. Click "Create Credentials" and select "OAuth client ID"
 3. Application type: "Web application"
-4. Name: "TuckerLa Web Client"
+4. Name: "TukkerLa Web Client"
 5. Add authorized JavaScript origins:
    - For development: `http://localhost:3000` (or whichever port your frontend runs on)
    - For production: Your domain (e.g., `https://yourapp.com`)
@@ -53,7 +53,7 @@ GOOGLE_CLIENT_SECRET=your_client_secret_here
 Run the migration to add Google authentication fields to the User model:
 
 ```bash
-cd /path/to/tuckerla
+cd /path/to/tukkerla
 python -m alembic upgrade head
 ```
 

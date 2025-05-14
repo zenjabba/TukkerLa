@@ -1,4 +1,4 @@
-# TuckerLa Freezer Tracker: Python + PostgreSQL Implementation
+# TukkerLa Freezer Tracker: Python + PostgreSQL Implementation
 
 ## Architecture Overview
 
@@ -37,10 +37,10 @@ brew services start postgresql # macOS
 
 ```sql
 -- Create the database
-CREATE DATABASE tuckerla;
+CREATE DATABASE tukkerla;
 
 -- Connect to the database
-\c tuckerla
+\c tukkerla
 
 -- Create users table
 CREATE TABLE users (
@@ -142,8 +142,8 @@ VALUES ('admin', 'admin@example.com', 'change_this_to_hashed_password', TRUE);
 
 ```bash
 # Create virtual environment
-mkdir tuckerla
-cd tuckerla
+mkdir tukkerla
+cd tukkerla
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
@@ -155,7 +155,7 @@ pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart python-j
 ### Project Structure
 
 ```
-tuckerla/
+tukkerla/
 ├── venv/
 ├── app/
 │   ├── __init__.py
@@ -199,7 +199,7 @@ tuckerla/
 
 ```
 # Database
-DATABASE_URL=postgresql://postgres:password@localhost/tuckerla
+DATABASE_URL=postgresql://postgres:password@localhost/tukkerla
 
 # Security
 SECRET_KEY=your-secret-key-here
@@ -228,7 +228,7 @@ import app.models.base as models
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="TuckerLa Freezer Tracker")
+app = FastAPI(title="TukkerLa Freezer Tracker")
 
 # CORS configuration
 app.add_middleware(
@@ -250,7 +250,7 @@ app.include_router(barcodes.router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to TuckerLa Freezer Tracker API"}
+    return {"message": "Welcome to TukkerLa Freezer Tracker API"}
 ```
 
 ### Database Connection (database.py)
@@ -534,8 +534,8 @@ For the web version, React with TypeScript provides a good foundation:
 
 ```bash
 # Create React app
-npx create-react-app tuckerla-web --template typescript
-cd tuckerla-web
+npx create-react-app tukkerla-web --template typescript
+cd tukkerla-web
 
 # Install dependencies
 npm install axios react-router-dom @mui/material @emotion/react @emotion/styled react-webcam react-barcode-reader date-fns
@@ -547,8 +547,8 @@ For the mobile app with camera support:
 
 ```bash
 # Create React Native app
-npx react-native init TuckerLaMobile --template react-native-template-typescript
-cd TuckerLaMobile
+npx react-native init TukkerLaMobile --template react-native-template-typescript
+cd TukkerLaMobile
 
 # Install dependencies
 npm install @react-navigation/native @react-navigation/stack axios react-native-camera react-native-vision-camera react-native-permissions react-native-fs moment
@@ -838,14 +838,14 @@ sudo apt update
 sudo apt install python3-pip python3-venv nginx postgresql
 
 # Set up PostgreSQL
-sudo -u postgres createuser tuckerla_user
-sudo -u postgres createdb tuckerla
-sudo -u postgres psql -c "ALTER USER tuckerla_user WITH ENCRYPTED PASSWORD 'your_password';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE tuckerla TO tuckerla_user;"
+sudo -u postgres createuser tukkerla_user
+sudo -u postgres createdb tukkerla
+sudo -u postgres psql -c "ALTER USER tukkerla_user WITH ENCRYPTED PASSWORD 'your_password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE tukkerla TO tukkerla_user;"
 
 # Clone and set up application
-git clone https://your-repo/tuckerla.git
-cd tuckerla
+git clone https://your-repo/tukkerla.git
+cd tukkerla
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -854,28 +854,28 @@ pip install -r requirements.txt
 nano .env  # Add your environment variables
 
 # Set up systemd service
-sudo nano /etc/systemd/system/tuckerla.service
+sudo nano /etc/systemd/system/tukkerla.service
 # [Unit]
-# Description=TuckerLa API
+# Description=TukkerLa API
 # After=network.target
 # 
 # [Service]
 # User=www-data
 # Group=www-data
-# WorkingDirectory=/path/to/tuckerla
-# Environment="PATH=/path/to/tuckerla/venv/bin"
-# EnvironmentFile=/path/to/tuckerla/.env
-# ExecStart=/path/to/tuckerla/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+# WorkingDirectory=/path/to/tukkerla
+# Environment="PATH=/path/to/tukkerla/venv/bin"
+# EnvironmentFile=/path/to/tukkerla/.env
+# ExecStart=/path/to/tukkerla/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 # 
 # [Install]
 # WantedBy=multi-user.target
 
 # Start and enable service
-sudo systemctl start tuckerla
-sudo systemctl enable tuckerla
+sudo systemctl start tukkerla
+sudo systemctl enable tukkerla
 
 # Configure Nginx as reverse proxy
-sudo nano /etc/nginx/sites-available/tuckerla
+sudo nano /etc/nginx/sites-available/tukkerla
 # server {
 #     listen 80;
 #     server_name your-domain.com;
@@ -887,11 +887,11 @@ sudo nano /etc/nginx/sites-available/tuckerla
 #     }
 #     
 #     location /static {
-#         alias /path/to/tuckerla/static;
+#         alias /path/to/tukkerla/static;
 #     }
 # }
 
-sudo ln -s /etc/nginx/sites-available/tuckerla /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/tukkerla /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 ```
 
@@ -903,28 +903,28 @@ sudo systemctl restart nginx
 
 ```bash
 # Create backup script
-sudo nano /usr/local/bin/backup_tuckerla.sh
+sudo nano /usr/local/bin/backup_tukkerla.sh
 # #!/bin/bash
 # TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-# BACKUP_DIR="/var/backups/tuckerla"
+# BACKUP_DIR="/var/backups/tukkerla"
 # mkdir -p $BACKUP_DIR
 # 
 # # Database backup
-# pg_dump tuckerla | gzip > $BACKUP_DIR/tuckerla_db_$TIMESTAMP.sql.gz
+# pg_dump tukkerla | gzip > $BACKUP_DIR/tukkerla_db_$TIMESTAMP.sql.gz
 # 
 # # Image files backup
-# tar -czf $BACKUP_DIR/tuckerla_images_$TIMESTAMP.tar.gz /path/to/tuckerla/static/images
+# tar -czf $BACKUP_DIR/tukkerla_images_$TIMESTAMP.tar.gz /path/to/tukkerla/static/images
 # 
 # # Cleanup old backups (keep the last 7 days)
-# find $BACKUP_DIR -name "tuckerla_db_*.sql.gz" -mtime +7 -delete
-# find $BACKUP_DIR -name "tuckerla_images_*.tar.gz" -mtime +7 -delete
+# find $BACKUP_DIR -name "tukkerla_db_*.sql.gz" -mtime +7 -delete
+# find $BACKUP_DIR -name "tukkerla_images_*.tar.gz" -mtime +7 -delete
 
 # Make executable
-sudo chmod +x /usr/local/bin/backup_tuckerla.sh
+sudo chmod +x /usr/local/bin/backup_tukkerla.sh
 
 # Set up cron job
 sudo crontab -e
-# Add: 0 3 * * * /usr/local/bin/backup_tuckerla.sh
+# Add: 0 3 * * * /usr/local/bin/backup_tukkerla.sh
 ```
 
 ### Security Considerations

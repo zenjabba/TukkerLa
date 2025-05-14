@@ -1,4 +1,4 @@
-# TuckerLa Freezer Tracker
+# TukkerLa Freezer Tracker
 
 A Python/PostgreSQL-based application to track and manage food items in your freezer.
 
@@ -31,8 +31,8 @@ A Python/PostgreSQL-based application to track and manage food items in your fre
 
 1. Clone this repository:
 ```bash
-git clone https://your-repository-url/tuckerla.git
-cd tuckerla
+git clone https://your-repository-url/tukkerla.git
+cd tukkerla
 ```
 
 2. Create and activate a virtual environment:
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 4. Set up the database:
 ```bash
 # Create PostgreSQL database
-createdb tuckerla
+createdb tukkerla
 
 # Run database migrations
 alembic upgrade head

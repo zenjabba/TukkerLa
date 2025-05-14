@@ -5,7 +5,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database settings
-    DATABASE_URL: str = "postgresql://postgres:password@localhost/tuckerla"
+    DATABASE_URL: str = "postgresql://postgres:password@localhost/tukkerla"
     
     # Security settings
     SECRET_KEY: str = "YOUR_SECRET_KEY_HERE_CHANGE_THIS_IN_PRODUCTION"
