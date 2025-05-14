@@ -14,7 +14,8 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - UPLOAD_DIRECTORY=static/images
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   db:
@@ -27,6 +28,11 @@ services:
       - POSTGRES_DB=tukkerla
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
 volumes:
