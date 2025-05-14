@@ -41,7 +41,7 @@ function echo_warning() {
 # Display welcome message
 echo_status "Starting TukkerLa database initialization using Docker..."
 echo "This script will create and set up the database for your TukkerLa application."
-echo "Make sure Docker and docker-compose are installed before continuing."
+echo "Make sure Docker and the Docker Compose plugin are installed before continuing."
 echo ""
 read -p "Continue? (y/n): " -n 1 -r
 echo ""
@@ -50,15 +50,16 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-# Check if Docker and docker-compose are installed
+# Check if Docker is installed
 echo_status "Checking Docker installation..."
 if ! command -v docker &> /dev/null; then
     echo_error "Docker not found. Please install Docker."
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    echo_error "docker-compose not found. Please install docker-compose."
+# Check Docker Compose functionality
+if ! docker compose version &> /dev/null; then
+    echo_error "Docker Compose functionality not found. Please make sure you have Docker with Compose plugin installed."
     exit 1
 fi
 
@@ -70,9 +71,9 @@ fi
 
 # Check if containers are running
 echo_status "Checking if Docker containers are running..."
-if ! docker-compose ps | grep -q "api" || ! docker-compose ps | grep -q "db"; then
+if ! docker compose ps | grep -q "api" || ! docker compose ps | grep -q "db"; then
     echo_warning "Containers are not running. Starting containers..."
-    docker-compose up -d
+    docker compose up -d
     
     # Wait for the database to be ready
     echo_status "Waiting for the database service to be ready..."
@@ -82,7 +83,7 @@ if ! docker-compose ps | grep -q "api" || ! docker-compose ps | grep -q "db"; th
     MAX_RETRIES=30
     RETRY_COUNT=0
     
-    while ! docker-compose exec db pg_isready -h localhost -U postgres > /dev/null 2>&1; do
+    while ! docker compose exec db pg_isready -h localhost -U postgres > /dev/null 2>&1; do
         RETRY_COUNT=$((RETRY_COUNT+1))
         if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
             echo_error "Database service not ready after maximum retries. Exiting."
@@ -97,22 +98,22 @@ fi
 
 # Check if database exists in the PostgreSQL container
 echo_status "Checking if database already exists..."
-if docker-compose exec db psql -U $DB_USER -lqt | grep -q $DB_NAME; then
+if docker compose exec db psql -U $DB_USER -lqt | grep -q $DB_NAME; then
     echo_warning "Database '$DB_NAME' already exists."
     read -p "Drop and recreate? (y/n): " -n 1 -r
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo_status "Dropping database '$DB_NAME'..."
-        docker-compose exec db psql -U $DB_USER -c "DROP DATABASE $DB_NAME;" postgres
+        docker compose exec db psql -U $DB_USER -c "DROP DATABASE $DB_NAME;" postgres
     else
         echo_warning "Continuing with the existing database. This might cause conflicts if schema has changed."
     fi
 fi
 
 # Create database if it doesn't exist
-if ! docker-compose exec db psql -U $DB_USER -lqt | grep -q $DB_NAME; then
+if ! docker compose exec db psql -U $DB_USER -lqt | grep -q $DB_NAME; then
     echo_status "Creating database '$DB_NAME'..."
-    docker-compose exec db psql -U $DB_USER -c "CREATE DATABASE $DB_NAME;" postgres
+    docker compose exec db psql -U $DB_USER -c "CREATE DATABASE $DB_NAME;" postgres
     if [ $? -ne 0 ]; then
         echo_error "Failed to create database. Check PostgreSQL settings and permissions."
         exit 1
@@ -138,7 +139,7 @@ fi
 
 # Run database migrations using Alembic in the Docker container
 echo_status "Running database migrations..."
-docker-compose exec api python -m alembic upgrade head
+docker compose exec api python -m alembic upgrade head
 if [ $? -ne 0 ]; then
     echo_error "Migration failed. Check the error message above."
     exit 1
@@ -208,8 +209,8 @@ EOF
 
 # Copy the seeding script to the container and run it
 echo_status "Running database seeding script..."
-docker cp seed_script.py $(docker-compose ps -q api):/app/seed_script.py
-docker-compose exec api python /app/seed_script.py
+docker cp seed_script.py $(docker compose ps -q api):/app/seed_script.py
+docker compose exec api python /app/seed_script.py
 if [ $? -ne 0 ]; then
     echo_error "Data seeding failed. Check the error message above."
     exit 1
@@ -217,7 +218,7 @@ fi
 
 # Clean up the seeding script
 rm seed_script.py
-docker-compose exec api rm /app/seed_script.py
+docker compose exec api rm /app/seed_script.py
 
 echo_status "Database initialization completed successfully!"
 echo_status "Your TukkerLa application is now running in Docker."
