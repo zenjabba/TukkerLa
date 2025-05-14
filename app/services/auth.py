@@ -30,11 +30,23 @@ def get_password_hash(password):
 
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user by username and password."""
+    # Try to find user by username
     user = db.query(User).filter(User.username == username).first()
+    
+    # If not found, try by email
+    if not user:
+        user = db.query(User).filter(User.email == username).first()
+    
     if not user:
         return False
+    
+    # If user is using Google auth, deny password login
+    if user.auth_provider != "local":
+        return False
+    
     if not verify_password(password, user.password_hash):
         return False
+    
     return user
 
 
