@@ -13,10 +13,12 @@ services:
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - UPLOAD_DIRECTORY=static/images
+      - POSTGRES_PASSWORD=password
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    entrypoint: ["./wait-for-db.sh", "db", "./start.sh"]
 
   db:
     image: postgres:13
