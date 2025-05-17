@@ -1,0 +1,779 @@
+// Global state
+const state = {
+  items: [],
+  activeLocation: 'all',
+  activeSubcategory: 'all',
+  filteredItems: []
+};
+
+// DOM Elements
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize the app
+  initApp();
+  
+  // Add event listeners
+  document.getElementById('addItemBtn').addEventListener('click', showAddItemModal);
+  document.getElementById('addItemForm').addEventListener('submit', handleAddItem);
+  document.getElementById('importItemsBtn').addEventListener('click', showImportModal);
+  document.getElementById('importForm').addEventListener('submit', handleImportItems);
+  document.getElementById('removeItemBtn').addEventListener('click', showRemoveItemModal);
+  document.getElementById('removeItemForm').addEventListener('submit', handleRemoveItem);
+  
+  // Freezer location buttons
+  document.querySelectorAll('.freezer-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = btn.getAttribute('data-target');
+      switchFreezerLocation(target);
+    });
+  });
+  
+  // Subcategory buttons
+  document.querySelectorAll('.subcategory-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const subcategory = btn.getAttribute('data-subcategory');
+      switchSubcategory(subcategory);
+    });
+  });
+  
+  // Remove item form change event listeners
+  document.getElementById('removeLocation').addEventListener('change', updateRemoveItemDropdown);
+  document.getElementById('removeSubcategory').addEventListener('change', updateRemoveItemDropdown);
+  document.getElementById('removeItem').addEventListener('change', updateCurrentQuantity);
+  
+  // Close modal when clicking on X or outside the modal
+  document.querySelectorAll('.close').forEach(closeBtn => {
+    closeBtn.addEventListener('click', closeModals);
+  });
+  
+  window.addEventListener('click', (e) => {
+    document.querySelectorAll('.modal').forEach(modal => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  });
+});
+
+// Initialize the application
+async function initApp() {
+  try {
+    await fetchItems();
+    renderItems();
+  } catch (error) {
+    console.error('Error initializing app:', error);
+    showNotification('Error initializing app: ' + error.message, 'error');
+  }
+}
+
+// Switch between freezer locations
+function switchFreezerLocation(location) {
+  // Update active location
+  state.activeLocation = location;
+  
+  // Update button UI
+  document.querySelectorAll('.freezer-btn').forEach(btn => {
+    if (btn.getAttribute('data-target') === location) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  // Re-render items for the selected location
+  renderItems();
+}
+
+// Switch between subcategories
+function switchSubcategory(subcategory) {
+  // Update active subcategory
+  state.activeSubcategory = subcategory;
+  
+  // Update button UI
+  document.querySelectorAll('.subcategory-btn').forEach(btn => {
+    if (btn.getAttribute('data-subcategory') === subcategory) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  // Re-render items for the selected subcategory
+  renderItems();
+}
+
+// Fetch items from the API
+async function fetchItems() {
+  try {
+    const response = await fetch('/api/items');
+    if (!response.ok) throw new Error('Failed to fetch items');
+    state.items = await response.json();
+  } catch (error) {
+    console.error('Error fetching items:', error);
+    showNotification('Error fetching items: ' + error.message, 'error');
+    throw error;
+  }
+}
+
+// Render items to the DOM
+function renderItems() {
+  // Get the container
+  const itemsContainer = document.getElementById('freezer-items-container');
+  
+  // Check if the container exists
+  if (!itemsContainer) {
+    console.error('Error: freezer-items-container element not found');
+    return;
+  }
+  
+  itemsContainer.innerHTML = '';
+  
+  // Filter items for the selected freezer location
+  let freezerItems = [];
+  
+  if (state.activeLocation === 'all') {
+    // Show all freezer items
+    freezerItems = state.items.filter(item => item.location === 'freezer');
+  } else {
+    // Show items for specific freezer location
+    freezerItems = state.items.filter(item => {
+      if (item.location !== 'freezer') return false;
+      
+      // Handle both formats: "garage" and "garage freezer"
+      const freezerLoc = item.freezerLocation ? item.freezerLocation.toLowerCase() : '';
+      return freezerLoc === state.activeLocation || 
+             freezerLoc === `${state.activeLocation} freezer` ||
+             freezerLoc.startsWith(state.activeLocation);
+    });
+  }
+  
+  // Filter by subcategory if not "all"
+  if (state.activeSubcategory !== 'all') {
+    freezerItems = freezerItems.filter(item => {
+      if (!item.subcategory) return false;
+      
+      // Create a mapping of button subcategories to possible database values
+      const subcategoryMap = {
+        'asian': ['asian', 'asia', 'chinese', 'japanese', 'korean', 'thai'],
+        'bread': ['bread', 'breads'],
+        'dessert': ['dessert', 'desserts', 'sweet', 'sweets'],
+        'fish': ['fish', 'seafood', 'salmon', 'tuna', 'cod'],
+        'fruit': ['fruit', 'fruits', 'berries', 'berry'],
+        'meal': ['meal', 'meals', 'dinner', 'lunch', 'ready meal'],
+        'meat': ['meat', 'meats', 'poultry', 'chicken', 'beef', 'pork', 'lamb'],
+        'pastry': ['pastry', 'pastries', 'croissant', 'croissants'],
+        'sauce': ['sauce', 'sauces'],
+        'soup': ['soup', 'soups'],
+        'vegetables': ['vegetables', 'vegetable', 'veg', 'veggies'],
+        'breakfast': ['breakfast', 'morning', 'brunch']
+      };
+      
+      // Clean and normalize the subcategory from the item
+      const itemSubCat = item.subcategory.toLowerCase().trim();
+      const activeSubCat = state.activeSubcategory.toLowerCase();
+      
+      // Check if the item's subcategory is in the mapping for the active subcategory
+      if (subcategoryMap[activeSubCat] && subcategoryMap[activeSubCat].includes(itemSubCat)) {
+        return true;
+      }
+      
+      // Direct case-insensitive comparison
+      if (itemSubCat === activeSubCat) {
+        return true;
+      }
+      
+      // Check if the item's subcategory contains the active subcategory
+      if (itemSubCat.includes(activeSubCat)) {
+        return true;
+      }
+      
+      // Check if the active subcategory contains the item's subcategory
+      if (activeSubCat.includes(itemSubCat) && itemSubCat.length > 2) {
+        return true;
+      }
+      
+      return false;
+    });
+  }
+  
+  if (freezerItems.length === 0) {
+    let message = '';
+    if (state.activeLocation === 'all' && state.activeSubcategory === 'all') {
+      message = 'No items found in any freezer. Add some items!';
+    } else if (state.activeLocation === 'all') {
+      message = `No ${state.activeSubcategory} items found in any freezer.`;
+    } else if (state.activeSubcategory === 'all') {
+      const locationName = `the ${state.activeLocation} freezer`;
+      message = `No items found in ${locationName}. Add some items!`;
+    } else {
+      const locationName = `the ${state.activeLocation} freezer`;
+      message = `No ${state.activeSubcategory} items found in ${locationName}.`;
+    }
+    itemsContainer.innerHTML = `<p>${message}</p>`;
+    return;
+  }
+  
+  const itemsGrid = document.createElement('div');
+  itemsGrid.className = 'item-grid';
+  
+  freezerItems.forEach(item => {
+    const itemCard = createItemCard(item);
+    itemsGrid.appendChild(itemCard);
+  });
+  
+  itemsContainer.appendChild(itemsGrid);
+}
+
+// Create an item card element
+function createItemCard(item) {
+  const card = document.createElement('div');
+  card.className = 'item-card';
+  
+  // Check if item is expired or expiring soon
+  const today = new Date();
+  const expiryDate = new Date(item.expiry_date);
+  const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+  
+  if (daysUntilExpiry < 0) {
+    card.classList.add('expired');
+  } else if (daysUntilExpiry <= 7) {
+    card.classList.add('expiring-soon');
+  }
+  
+  // Show subcategory if available
+  const subcategoryHtml = item.subcategory ? `
+    <div class="item-detail">
+      <span class="detail-label">Subcategory:</span>
+      <span>${item.subcategory}</span>
+    </div>` : '';
+  
+  card.innerHTML = `
+    <div class="item-content">
+      <div class="item-header">
+        <span class="item-title">${item.name}</span>
+        <span class="item-category">${item.quantity}</span>
+      </div>
+      <div class="item-details">
+        <div class="item-detail">
+          <span class="detail-label">Location:</span>
+          <span>Freezer</span>
+        </div>
+        <div class="item-detail">
+          <span class="detail-label">Freezer Location:</span>
+          <span>${capitalizeFirstLetter(item.freezerLocation)}</span>
+        </div>
+        ${subcategoryHtml}
+        <div class="item-detail">
+          <span class="detail-label">Pack Type:</span>
+          <span>${item.packType}</span>
+        </div>
+        <div class="item-detail">
+          <span class="detail-label">Added:</span>
+          <span>${formatDate(item.added_date)}</span>
+        </div>
+        <div class="item-detail">
+          <span class="detail-label">Expires:</span>
+          <span>${formatDate(item.expiry_date)} ${getExpiryText(daysUntilExpiry)}</span>
+        </div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+        <button class="btn" onclick="editItem(${item.id})">Edit</button>
+      </div>
+    </div>
+  `;
+  
+  return card;
+}
+
+// Helper function to capitalize first letter
+function capitalizeFirstLetter(string) {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Format a date string
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  
+  try {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+}
+
+// Get expiry text based on days until expiry
+function getExpiryText(days) {
+  if (days < 0) {
+    return `<span style="color: var(--danger-color);">(Expired ${Math.abs(days)} days ago)</span>`;
+  } else if (days === 0) {
+    return `<span style="color: var(--warning-color);">(Expires today)</span>`;
+  } else if (days <= 7) {
+    return `<span style="color: var(--warning-color);">(Expires in ${days} days)</span>`;
+  }
+  return '';
+}
+
+// Show the add item modal
+function showAddItemModal() {
+  const modal = document.getElementById('addItemModal');
+  if (!modal) {
+    console.error('Error: addItemModal element not found');
+    return;
+  }
+  
+  modal.style.display = 'block';
+  
+  const form = document.getElementById('addItemForm');
+  if (form) {
+    form.reset();
+  }
+  
+  // Set default freezer location to current selection (if not "all")
+  const freezerLocationSelect = document.getElementById('freezerLocation');
+  if (freezerLocationSelect && state.activeLocation !== 'all') {
+    freezerLocationSelect.value = state.activeLocation;
+  }
+  
+  // Set default expiry date to 3 months from now
+  const expiryDateInput = document.getElementById('itemExpiryDate');
+  if (expiryDateInput) {
+    const defaultExpiry = new Date();
+    defaultExpiry.setMonth(defaultExpiry.getMonth() + 3);
+    expiryDateInput.valueAsDate = defaultExpiry;
+  }
+}
+
+// Show the import modal
+function showImportModal() {
+  const modal = document.getElementById('importModal');
+  if (!modal) {
+    console.error('Error: importModal element not found');
+    return;
+  }
+  
+  modal.style.display = 'block';
+  
+  const form = document.getElementById('importForm');
+  if (form) {
+    form.reset();
+  }
+  
+  // Set default freezer location to current selection (if not "all")
+  const importFreezerLocationSelect = document.getElementById('importFreezerLocation');
+  if (importFreezerLocationSelect && state.activeLocation !== 'all') {
+    importFreezerLocationSelect.value = state.activeLocation;
+  }
+}
+
+// Close all modals
+function closeModals() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.style.display = 'none';
+  });
+}
+
+// Handle add item form submission
+async function handleAddItem(e) {
+  e.preventDefault();
+  
+  const nameInput = document.getElementById('itemName');
+  const subcategoryInput = document.getElementById('itemSubcategory');
+  const freezerLocationInput = document.getElementById('freezerLocation');
+  const packTypeInput = document.getElementById('itemPackType');
+  const quantityInput = document.getElementById('itemQuantity');
+  const expiryDateInput = document.getElementById('itemExpiryDate');
+  
+  if (!nameInput || !freezerLocationInput || !packTypeInput || !quantityInput || !expiryDateInput) {
+    showNotification('Error: Form fields not found', 'error');
+    return;
+  }
+  
+  const newItem = {
+    name: nameInput.value,
+    subcategory: subcategoryInput ? subcategoryInput.value : '',
+    location: 'freezer',
+    freezerLocation: freezerLocationInput.value,
+    packType: packTypeInput.value,
+    quantity: quantityInput.value,
+    expiry_date: expiryDateInput.value
+  };
+  
+  try {
+    const response = await fetch('/api/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem)
+    });
+    
+    if (!response.ok) throw new Error('Failed to add item');
+    
+    const addedItem = await response.json();
+    state.items.push(addedItem);
+    renderItems();
+    closeModals();
+    showNotification('Item added successfully!', 'success');
+  } catch (error) {
+    console.error('Error adding item:', error);
+    showNotification('Error adding item: ' + error.message, 'error');
+  }
+}
+
+// Handle import items form submission
+async function handleImportItems(e) {
+  e.preventDefault();
+  
+  const fileInput = document.getElementById('fileInput');
+  const freezerLocationInput = document.getElementById('importFreezerLocation');
+  
+  if (!fileInput || !freezerLocationInput) {
+    showNotification('Error: Form fields not found', 'error');
+    return;
+  }
+  
+  const file = fileInput.files[0];
+  const freezerLocation = freezerLocationInput.value;
+  
+  if (!file) {
+    showNotification('Please select a file to import', 'error');
+    return;
+  }
+  
+  try {
+    console.log('Starting file import process...');
+    console.log('File details:', file.name, file.type, file.size);
+    
+    // Check file type
+    const fileType = file.name.split('.').pop().toLowerCase();
+    if (!['csv', 'xlsx', 'xls'].includes(fileType)) {
+      showNotification('Please upload a CSV or Excel file', 'error');
+      return;
+    }
+    
+    // Create form data and send to server
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('location', 'freezer');
+    formData.append('freezerLocation', freezerLocation);
+    
+    console.log('Sending request to server...');
+    
+    const response = await fetch('/api/import', {
+      method: 'POST',
+      body: formData
+    }).catch(error => {
+      console.error('Network error during fetch:', error);
+      throw new Error('Network error: ' + (error.message || 'Failed to connect to server'));
+    });
+    
+    console.log('Server response received, status:', response.status);
+    
+    if (!response.ok) {
+      console.error('Server returned error status:', response.status);
+      try {
+        const errorData = await response.json();
+        console.error('Error details:', errorData);
+        throw new Error(errorData.detail || `Server error: ${response.status}`);
+      } catch (jsonError) {
+        console.error('Failed to parse error response:', jsonError);
+        throw new Error(`Server error: ${response.status}`);
+      }
+    }
+    
+    try {
+      const result = await response.json();
+      console.log('Response parsed successfully:', result);
+      state.items = result.items;
+      
+      renderItems();
+      closeModals();
+      showNotification(result.message || 'Items imported successfully!', 'success');
+    } catch (jsonError) {
+      console.error('Failed to parse success response:', jsonError);
+      throw new Error('Failed to parse server response');
+    }
+  } catch (error) {
+    console.error('Error importing items:', error);
+    showNotification('Error importing items: ' + error.message, 'error');
+  }
+}
+
+// Show the remove item modal
+function showRemoveItemModal() {
+  const modal = document.getElementById('removeItemModal');
+  if (!modal) {
+    console.error('Error: removeItemModal element not found');
+    return;
+  }
+  
+  modal.style.display = 'block';
+  
+  const form = document.getElementById('removeItemForm');
+  if (form) {
+    form.reset();
+  }
+  
+  // Set default location to current selection (if not "all")
+  const removeLocationSelect = document.getElementById('removeLocation');
+  if (removeLocationSelect && state.activeLocation !== 'all') {
+    removeLocationSelect.value = state.activeLocation;
+  }
+  
+  // Set default subcategory to current selection (if not "all")
+  const removeSubcategorySelect = document.getElementById('removeSubcategory');
+  if (removeSubcategorySelect && state.activeSubcategory !== 'all') {
+    removeSubcategorySelect.value = state.activeSubcategory;
+  }
+  
+  // Update the items dropdown
+  updateRemoveItemDropdown();
+}
+
+// Update the items dropdown in the remove item modal
+function updateRemoveItemDropdown() {
+  const locationSelect = document.getElementById('removeLocation');
+  const subcategorySelect = document.getElementById('removeSubcategory');
+  const itemSelect = document.getElementById('removeItem');
+  
+  if (!locationSelect || !subcategorySelect || !itemSelect) {
+    console.error('Error: Form elements not found');
+    return;
+  }
+  
+  const selectedLocation = locationSelect.value;
+  const selectedSubcategory = subcategorySelect.value;
+  
+  // Filter items based on selected location and subcategory
+  let filteredItems = state.items.filter(item => item.location === 'freezer');
+  
+  // Filter by location if not "all"
+  if (selectedLocation !== 'all') {
+    filteredItems = filteredItems.filter(item => {
+      const freezerLoc = item.freezerLocation ? item.freezerLocation.toLowerCase() : '';
+      return freezerLoc === selectedLocation || 
+             freezerLoc === `${selectedLocation} freezer` ||
+             freezerLoc.startsWith(selectedLocation);
+    });
+  }
+  
+  // Filter by subcategory if not "all"
+  if (selectedSubcategory !== 'all') {
+    filteredItems = filteredItems.filter(item => {
+      if (!item.subcategory) return false;
+      
+      // Create a mapping of button subcategories to possible database values
+      const subcategoryMap = {
+        'asian': ['asian', 'asia', 'chinese', 'japanese', 'korean', 'thai'],
+        'bread': ['bread', 'breads'],
+        'dessert': ['dessert', 'desserts', 'sweet', 'sweets'],
+        'fish': ['fish', 'seafood', 'salmon', 'tuna', 'cod'],
+        'fruit': ['fruit', 'fruits', 'berries', 'berry'],
+        'meal': ['meal', 'meals', 'dinner', 'lunch', 'ready meal'],
+        'meat': ['meat', 'meats', 'poultry', 'chicken', 'beef', 'pork', 'lamb'],
+        'pastry': ['pastry', 'pastries', 'croissant', 'croissants'],
+        'sauce': ['sauce', 'sauces'],
+        'soup': ['soup', 'soups'],
+        'vegetables': ['vegetables', 'vegetable', 'veg', 'veggies'],
+        'breakfast': ['breakfast', 'morning', 'brunch']
+      };
+      
+      // Clean and normalize the subcategory from the item
+      const itemSubCat = item.subcategory.toLowerCase().trim();
+      const activeSubCat = selectedSubcategory.toLowerCase();
+      
+      // Check if the item's subcategory is in the mapping for the active subcategory
+      if (subcategoryMap[activeSubCat] && subcategoryMap[activeSubCat].includes(itemSubCat)) {
+        return true;
+      }
+      
+      // Direct case-insensitive comparison
+      if (itemSubCat === activeSubCat) {
+        return true;
+      }
+      
+      // Check if the item's subcategory contains the active subcategory
+      if (itemSubCat.includes(activeSubCat)) {
+        return true;
+      }
+      
+      // Check if the active subcategory contains the item's subcategory
+      if (activeSubCat.includes(itemSubCat) && itemSubCat.length > 2) {
+        return true;
+      }
+      
+      return false;
+    });
+  }
+  
+  // Save filtered items to state for later use
+  state.filteredItems = filteredItems;
+  
+  // Clear existing options
+  itemSelect.innerHTML = '<option value="">-- Select an item --</option>';
+  
+  // Add filtered items to the dropdown
+  filteredItems.forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.id;
+    option.textContent = `${item.name} (${item.quantity})`;
+    itemSelect.appendChild(option);
+  });
+  
+  // Clear current quantity field
+  document.getElementById('currentQuantity').value = '';
+  document.getElementById('quantityToRemove').value = '';
+}
+
+// Update the current quantity field when an item is selected
+function updateCurrentQuantity() {
+  const itemSelect = document.getElementById('removeItem');
+  const currentQuantityInput = document.getElementById('currentQuantity');
+  const removeItemIdInput = document.getElementById('removeItemId');
+  const packTypeInput = document.getElementById('packType');
+  
+  if (!itemSelect || !currentQuantityInput || !removeItemIdInput || !packTypeInput) {
+    console.error('Error: Form elements not found');
+    return;
+  }
+  
+  const selectedItemId = parseInt(itemSelect.value);
+  if (!selectedItemId) {
+    currentQuantityInput.value = '';
+    removeItemIdInput.value = '';
+    packTypeInput.value = '';
+    return;
+  }
+  
+  // Find the selected item
+  const selectedItem = state.filteredItems.find(item => item.id === selectedItemId);
+  if (selectedItem) {
+    currentQuantityInput.value = selectedItem.quantity;
+    removeItemIdInput.value = selectedItemId;
+    
+    // Set pack type from the correct property
+    packTypeInput.value = selectedItem.packType || selectedItem.pack_type || '';
+    
+    // Set default quantity to remove as the full amount
+    document.getElementById('quantityToRemove').value = extractQuantityNumber(selectedItem.quantity);
+  }
+}
+
+// Extract the numeric part of a quantity string
+function extractQuantityNumber(quantityStr) {
+  const match = quantityStr.match(/^([\d.]+)/);
+  return match ? match[1] : '';
+}
+
+// Handle remove item form submission
+async function handleRemoveItem(e) {
+  e.preventDefault();
+  
+  const itemIdInput = document.getElementById('removeItemId');
+  const quantityToRemoveInput = document.getElementById('quantityToRemove');
+  
+  if (!itemIdInput || !quantityToRemoveInput) {
+    showNotification('Error: Form fields not found', 'error');
+    return;
+  }
+  
+  const itemId = parseInt(itemIdInput.value);
+  const quantityToRemove = quantityToRemoveInput.value;
+  
+  if (!itemId) {
+    showNotification('Please select an item', 'error');
+    return;
+  }
+  
+  if (!quantityToRemove || isNaN(parseFloat(quantityToRemove))) {
+    showNotification('Please enter a valid quantity to remove', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/items/${itemId}/update-quantity`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantity_to_remove: quantityToRemove })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to update item quantity');
+    }
+    
+    const result = await response.json();
+    
+    // If the item was completely removed, filter it out
+    if (result.message === "Item fully consumed and removed") {
+      state.items = state.items.filter(item => item.id !== itemId);
+    } else {
+      // Otherwise update the item in the state
+      const itemIndex = state.items.findIndex(item => item.id === itemId);
+      if (itemIndex !== -1) {
+        state.items[itemIndex] = result.item;
+      }
+    }
+    
+    renderItems();
+    closeModals();
+    showNotification(result.message, 'success');
+  } catch (error) {
+    console.error('Error updating item quantity:', error);
+    showNotification('Error updating item quantity: ' + error.message, 'error');
+  }
+}
+
+// Delete an item
+async function deleteItem(id) {
+  // Show the remove item modal instead of directly deleting
+  showRemoveItemModal();
+  
+  // Pre-select the item in the dropdown
+  const itemSelect = document.getElementById('removeItem');
+  if (itemSelect) {
+    // Update the dropdown first
+    updateRemoveItemDropdown();
+    
+    // Set timeout to allow the dropdown to populate
+    setTimeout(() => {
+      itemSelect.value = id;
+      updateCurrentQuantity();
+    }, 100);
+  }
+}
+
+// Edit an item
+function editItem(id) {
+  // This would be implemented in a real app
+  alert('Edit functionality would be implemented here');
+}
+
+// Show a notification
+function showNotification(message, type) {
+  try {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Make the notification visible
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 10);
+    
+    // Remove the notification after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  } catch (error) {
+    console.error('Error showing notification:', error);
+  }
+}

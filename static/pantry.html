@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUKKALAH - Pantry</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pantry Items</h1>
+            <div class="header-buttons">
+                <button id="importItemsBtn" class="btn">Import Items</button>
+                <button id="removeItemBtn" class="btn btn-danger">Remove Item</button>
+                <button id="addItemBtn" class="btn btn-success">Add Item</button>
+            </div>
+        </header>
+        
+        <a href="index.html" class="back-link">← Back to Home</a>
+        
+        <div class="card">
+            <div class="pantry-buttons">
+                <button class="btn pantry-btn active" data-target="all">All Storage</button>
+                <button class="btn pantry-btn" data-target="kitchen">Kitchen Pantry</button>
+                <button class="btn pantry-btn" data-target="basement">Basement Storage</button>
+            </div>
+            
+            <div class="subcategory-buttons">
+                <button class="btn subcategory-btn active" data-subcategory="all">All Categories</button>
+                <button class="btn subcategory-btn" data-subcategory="canned">Canned</button>
+                <button class="btn subcategory-btn" data-subcategory="pasta">Pasta</button>
+                <button class="btn subcategory-btn" data-subcategory="rice">Rice</button>
+                <button class="btn subcategory-btn" data-subcategory="baking">Baking</button>
+                <button class="btn subcategory-btn" data-subcategory="snacks">Snacks</button>
+                <button class="btn subcategory-btn" data-subcategory="breakfast">Breakfast</button>
+                <button class="btn subcategory-btn" data-subcategory="spices">Spices</button>
+                <button class="btn subcategory-btn" data-subcategory="oils">Oils</button>
+                <button class="btn subcategory-btn" data-subcategory="sauces">Sauces</button>
+                <button class="btn subcategory-btn" data-subcategory="drinks">Drinks</button>
+            </div>
+            
+            <div id="pantry-items-container" class="pantry-items">
+                <p>Loading pantry items...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Pantry Item</h2>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" required placeholder="e.g., Pasta">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemSubcategory">Subcategory</label>
+                    <select id="itemSubcategory">
+                        <option value="canned">Canned</option>
+                        <option value="pasta">Pasta</option>
+                        <option value="rice">Rice</option>
+                        <option value="baking">Baking</option>
+                        <option value="snacks">Snacks</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="spices">Spices</option>
+                        <option value="oils">Oils</option>
+                        <option value="sauces">Sauces</option>
+                        <option value="drinks">Drinks</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pantryLocation">Pantry Location</label>
+                    <select id="pantryLocation" required>
+                        <option value="kitchen">Kitchen Pantry</option>
+                        <option value="basement">Basement Storage</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemQuantity">Quantity</label>
+                        <input type="text" id="itemQuantity" required placeholder="e.g., 500g">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemPackType">Pack Type</label>
+                        <input type="text" id="itemPackType" required placeholder="e.g., Box">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemExpiryDate">Expiry Date</label>
+                    <input type="date" id="itemExpiryDate" required>
+                </div>
+                
+                <input type="hidden" id="itemLocation" value="pantry">
+                <button type="submit" class="btn btn-success">Save Item</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Import Items Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Import Pantry Items</h2>
+            <p>Upload a CSV or Excel file with your pantry items.</p>
+            <p class="info-text">The file should have columns for: Item, Subcategory, Location, Pack Type, Quantity, and Expiry Date.</p>
+            
+            <div class="download-sample">
+                <a href="sample_import_pantry.csv" download class="btn">Download Sample CSV</a>
+                <span class="info-text">Use this template to format your data correctly.</span>
+            </div>
+            
+            <p class="info-text">Available subcategories: Canned, Pasta, Rice, Baking, Snacks, Breakfast, Spices, Oils, Sauces, Drinks</p>
+            
+            <form id="importForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="importPantryLocation">Pantry Location</label>
+                    <select id="importPantryLocation" required>
+                        <option value="kitchen">Kitchen Pantry</option>
+                        <option value="basement">Basement Storage</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileInput">Select File</label>
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sample Format:</label>
+                    <div class="sample-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Subcategory</th>
+                                    <th>Location</th>
+                                    <th>Pack Type</th>
+                                    <th>Quantity</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pasta</td>
+                                    <td>Pasta</td>
+                                    <td>Kitchen</td>
+                                    <td>Box</td>
+                                    <td>500g</td>
+                                    <td>2024-12-31</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="importLocation" value="pantry">
+                <button type="submit" class="btn btn-success">Import Items</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/pantry.js"></script>
+
+    <!-- Remove Item Modal -->
+    <div id="removeItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Remove Item</h2>
+            <form id="removeItemForm">
+                <div class="form-group">
+                    <label for="removeLocation">Location</label>
+                    <select id="removeLocation" required>
+                        <option value="all">All Locations</option>
+                        <option value="kitchen">Kitchen Pantry</option>
+                        <option value="basement">Basement Storage</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="removeSubcategory">Subcategory</label>
+                    <select id="removeSubcategory">
+                        <option value="all">All Subcategories</option>
+                        <option value="canned">Canned</option>
+                        <option value="pasta">Pasta</option>
+                        <option value="rice">Rice</option>
+                        <option value="baking">Baking</option>
+                        <option value="snacks">Snacks</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="spices">Spices</option>
+                        <option value="oils">Oils</option>
+                        <option value="sauces">Sauces</option>
+                        <option value="drinks">Drinks</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="removeItem">Select Item</label>
+                    <select id="removeItem" required>
+                        <option value="">-- Select an item --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentQuantity">Current Quantity</label>
+                    <input type="text" id="currentQuantity" readonly>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantityToRemove">Quantity to Remove</label>
+                        <input type="text" id="quantityToRemove" required placeholder="e.g., 2 or 0.25">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="packType">Pack Type</label>
+                        <input type="text" id="packType" readonly>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="removeItemId">
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

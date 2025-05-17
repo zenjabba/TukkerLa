@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUKKALAH - Freezer</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Freezer Items</h1>
+            <div class="header-buttons">
+                <button id="importItemsBtn" class="btn">Import Items</button>
+                <button id="removeItemBtn" class="btn btn-danger">Remove Item</button>
+                <button id="addItemBtn" class="btn btn-success">Add Item</button>
+            </div>
+        </header>
+        
+        <a href="index.html" class="back-link">← Back to Home</a>
+        
+        <div class="card">
+            <div class="freezer-buttons">
+                <button class="btn freezer-btn active" data-target="all">All Freezers</button>
+                <button class="btn freezer-btn" data-target="kitchen">Kitchen Freezer</button>
+                <button class="btn freezer-btn" data-target="garage">Garage Freezer</button>
+                <button class="btn freezer-btn" data-target="basement">Basement Freezer</button>
+            </div>
+            
+            <div class="subcategory-buttons">
+                <button class="btn subcategory-btn active" data-subcategory="all">All Categories</button>
+                <button class="btn subcategory-btn" data-subcategory="asian">Asian</button>
+                <button class="btn subcategory-btn" data-subcategory="bread">Bread</button>
+                <button class="btn subcategory-btn" data-subcategory="dessert">Dessert</button>
+                <button class="btn subcategory-btn" data-subcategory="fish">Fish</button>
+                <button class="btn subcategory-btn" data-subcategory="fruit">Fruit</button>
+                <button class="btn subcategory-btn" data-subcategory="meal">Meal</button>
+                <button class="btn subcategory-btn" data-subcategory="meat">Meat</button>
+                <button class="btn subcategory-btn" data-subcategory="pastry">Pastry</button>
+                <button class="btn subcategory-btn" data-subcategory="sauce">Sauce</button>
+                <button class="btn subcategory-btn" data-subcategory="soup">Soup</button>
+                <button class="btn subcategory-btn" data-subcategory="vegetables">Vegetables</button>
+            </div>
+            
+            <div id="freezer-items-container" class="freezer-items">
+                <p>Loading freezer items...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Freezer Item</h2>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" required placeholder="e.g., Chicken Breast">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemSubcategory">Subcategory</label>
+                    <select id="itemSubcategory">
+                        <option value="asian">Asian</option>
+                        <option value="bread">Bread</option>
+                        <option value="dessert">Dessert</option>
+                        <option value="fish">Fish</option>
+                        <option value="fruit">Fruit</option>
+                        <option value="meal">Meal</option>
+                        <option value="meat">Meat</option>
+                        <option value="pastry">Pastry</option>
+                        <option value="sauce">Sauce</option>
+                        <option value="soup">Soup</option>
+                        <option value="vegetables">Vegetables</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="freezerLocation">Freezer Location</label>
+                    <select id="freezerLocation" required>
+                        <option value="kitchen">Kitchen Freezer</option>
+                        <option value="garage">Garage Freezer</option>
+                        <option value="basement">Basement Freezer</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemQuantity">Quantity</label>
+                        <input type="text" id="itemQuantity" required placeholder="e.g., 500g">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemPackType">Pack Type</label>
+                        <input type="text" id="itemPackType" required placeholder="e.g., Vacuum Sealed">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemExpiryDate">Expiry Date</label>
+                    <input type="date" id="itemExpiryDate" required>
+                </div>
+                
+                <input type="hidden" id="itemLocation" value="freezer">
+                <button type="submit" class="btn btn-success">Save Item</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Import Items Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Import Freezer Items</h2>
+            <p>Upload a CSV or Excel file with your freezer items.</p>
+            <p class="info-text">The file should have columns for: Item, Subcategory, Location, Pack Type, Quantity, and Expiry Date.</p>
+            
+            <div class="download-sample">
+                <a href="sample_import.csv" download class="btn">Download Sample CSV</a>
+                <span class="info-text">Use this template to format your data correctly.</span>
+            </div>
+            
+            <p class="info-text">Available subcategories: Asian, Bread, Dessert, Fish, Fruit, Meal, Meat, Pastry, Sauce, Soup, Vegetables</p>
+            
+            <form id="importForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="importFreezerLocation">Freezer Location</label>
+                    <select id="importFreezerLocation" required>
+                        <option value="kitchen">Kitchen Freezer</option>
+                        <option value="garage">Garage Freezer</option>
+                        <option value="basement">Basement Freezer</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileInput">Select File</label>
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sample Format:</label>
+                    <div class="sample-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Subcategory</th>
+                                    <th>Location</th>
+                                    <th>Pack Type</th>
+                                    <th>Quantity</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Chicken Breast</td>
+                                    <td>Meat</td>
+                                    <td>Kitchen</td>
+                                    <td>Vacuum Sealed</td>
+                                    <td>500g</td>
+                                    <td>2023-12-31</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="importLocation" value="freezer">
+                <button type="submit" class="btn btn-success">Import Items</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="js/freezer.js"></script>
+
+    <!-- Remove Item Modal -->
+    <div id="removeItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Remove Item</h2>
+            <form id="removeItemForm">
+                <div class="form-group">
+                    <label for="removeLocation">Location</label>
+                    <select id="removeLocation" required>
+                        <option value="all">All Locations</option>
+                        <option value="kitchen">Kitchen Freezer</option>
+                        <option value="garage">Garage Freezer</option>
+                        <option value="basement">Basement Freezer</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="removeSubcategory">Subcategory</label>
+                    <select id="removeSubcategory">
+                        <option value="all">All Subcategories</option>
+                        <option value="asian">Asian</option>
+                        <option value="bread">Bread</option>
+                        <option value="dessert">Dessert</option>
+                        <option value="fish">Fish</option>
+                        <option value="fruit">Fruit</option>
+                        <option value="meal">Meal</option>
+                        <option value="meat">Meat</option>
+                        <option value="pastry">Pastry</option>
+                        <option value="sauce">Sauce</option>
+                        <option value="soup">Soup</option>
+                        <option value="vegetables">Vegetables</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="removeItem">Select Item</label>
+                    <select id="removeItem" required>
+                        <option value="">-- Select an item --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currentQuantity">Current Quantity</label>
+                    <input type="text" id="currentQuantity" readonly>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantityToRemove">Quantity to Remove</label>
+                        <input type="text" id="quantityToRemove" required placeholder="e.g., 2 or 0.25">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="packType">Pack Type</label>
+                        <input type="text" id="packType" readonly>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="removeItemId">
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

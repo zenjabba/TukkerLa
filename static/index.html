@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUKKALAH</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="cover-page">
+            <h1 class="app-title">TUKKALAH</h1>
+            
+            <div class="button-group">
+                <h2 class="button-group-title">Storage Locations</h2>
+                <div class="button-row">
+                    <a href="freezer.html" class="btn btn-large">Freezer</a>
+                    <a href="fridge.html" class="btn btn-large">Fridge</a>
+                    <a href="pantry.html" class="btn btn-large">Pantry</a>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <h2 class="button-group-title">Item Actions</h2>
+                <div class="button-row">
+                    <button id="addItemBtn" class="btn btn-secondary btn-large">Add Item</button>
+                    <button id="removeItemBtn" class="btn btn-secondary btn-large">Remove Item</button>
+                    <button id="updateItemBtn" class="btn btn-secondary btn-large">Update Item</button>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <h2 class="button-group-title">Inventory Management</h2>
+                <div class="button-row">
+                    <button id="inventoryImportBtn" class="btn btn-secondary btn-large">Inventory Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Item</h2>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" required placeholder="e.g., Chicken Breast">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemSubcategory">Subcategory</label>
+                    <input type="text" id="itemSubcategory" placeholder="e.g., Poultry, Vegetables, Desserts">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemLocation">Storage Location</label>
+                    <select id="itemLocation" required>
+                        <option value="freezer">Freezer</option>
+                        <option value="fridge">Fridge</option>
+                        <option value="pantry">Pantry</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="itemQuantity">Quantity</label>
+                        <input type="text" id="itemQuantity" required placeholder="e.g., 500g">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemPackType">Pack Type</label>
+                        <input type="text" id="itemPackType" required placeholder="e.g., Vacuum Sealed">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemExpiryDate">Expiry Date</label>
+                    <input type="date" id="itemExpiryDate" required>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Save Item</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Remove Item Modal -->
+    <div id="removeItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Remove Item</h2>
+            <form id="removeItemForm">
+                <div class="form-group">
+                    <label for="removeItemLocation">Storage Location</label>
+                    <select id="removeItemLocation" required>
+                        <option value="freezer">Freezer</option>
+                        <option value="fridge">Fridge</option>
+                        <option value="pantry">Pantry</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="removeItemSubcategory">Subcategory</label>
+                    <select id="removeItemSubcategory">
+                        <option value="">-- Select a subcategory --</option>
+                        <!-- Subcategories will be populated dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="removeItemSelect">Select Item</label>
+                    <select id="removeItemSelect" required>
+                        <option value="">-- Select an item --</option>
+                        <!-- Items will be populated dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantityToRemove">Quantity to Remove</label>
+                        <input type="number" id="quantityToRemove" step="0.01" min="0.01" required placeholder="e.g., 1, 0.5, 0.25">
+                        <span class="info-text">Enter the quantity to remove (can be a decimal for partial usage)</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="packType">Pack Type</label>
+                        <input type="text" id="packType" readonly>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-danger">Remove Item</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Update Item Modal -->
+    <div id="updateItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Update Item</h2>
+            <form id="updateItemForm">
+                <div class="form-group">
+                    <label for="updateItemLocation">Storage Location</label>
+                    <select id="updateItemLocation" required>
+                        <option value="freezer">Freezer</option>
+                        <option value="fridge">Fridge</option>
+                        <option value="pantry">Pantry</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="updateItemSelect">Select Item</label>
+                    <select id="updateItemSelect" required>
+                        <option value="">-- Select an item --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="updateItemSubcategory">Subcategory</label>
+                    <input type="text" id="updateItemSubcategory" placeholder="e.g., Poultry, Vegetables, Desserts">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="updateItemQuantity">Quantity</label>
+                        <input type="text" id="updateItemQuantity" required placeholder="e.g., 500g">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="updateItemPackType">Pack Type</label>
+                        <input type="text" id="updateItemPackType" required placeholder="e.g., Vacuum Sealed">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="updateItemExpiryDate">Expiry Date</label>
+                    <input type="date" id="updateItemExpiryDate" required>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Update Item</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Import Items Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Import Items from Spreadsheet</h2>
+            <p>Upload a CSV or Excel file with your items.</p>
+            <p class="info-text">The file should have columns for: Item, Subcategory, Pack Type, Quantity, and Expiry Date.</p>
+            
+            <div class="download-sample">
+                <a href="sample_import.csv" download class="btn">Download Sample CSV</a>
+                <span class="info-text">Use this template to format your data correctly.</span>
+            </div>
+            
+            <form id="importForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="importLocation">Storage Location</label>
+                    <select id="importLocation" required>
+                        <option value="freezer">Freezer</option>
+                        <option value="fridge">Fridge</option>
+                        <option value="pantry">Pantry</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileInput">Select File</label>
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sample Format:</label>
+                    <div class="sample-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Subcategory</th>
+                                    <th>Pack Type</th>
+                                    <th>Quantity</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Chicken Breast</td>
+                                    <td>Poultry</td>
+                                    <td>Vacuum Sealed</td>
+                                    <td>500g</td>
+                                    <td>2023-12-31</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Import Items</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Inventory Import Modal -->
+    <div id="inventoryImportModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Inventory Import</h2>
+            <p>Upload a comprehensive inventory list for a specific location.</p>
+            <p class="info-text">This will update the inventory for the selected location.</p>
+            
+            <form id="inventoryImportForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="inventoryLocation">Storage Location</label>
+                    <select id="inventoryLocation" required>
+                        <option value="freezer">Freezer</option>
+                        <option value="fridge">Fridge</option>
+                        <option value="pantry">Pantry</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inventorySublocation">Specific Location</label>
+                    <select id="inventorySublocation" required>
+                        <option value="all">All Locations</option>
+                        <!-- Sublocations will be populated dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inventoryFileInput">Select File</label>
+                    <input type="file" id="inventoryFileInput" accept=".csv,.xlsx,.xls" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sample Format:</label>
+                    <div class="sample-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Subcategory</th>
+                                    <th>Pack Type</th>
+                                    <th>Quantity</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Chicken Breast</td>
+                                    <td>Poultry</td>
+                                    <td>Vacuum Sealed</td>
+                                    <td>500g</td>
+                                    <td>2023-12-31</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Upload Inventory</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Inventory Update</h2>
+            <p>Overwrite existing inventory?</p>
+            <p class="info-text">If you select "Yes", this will replace all existing items in the selected location. If you select "No", it will add to the existing inventory.</p>
+            
+            <div class="button-row" style="justify-content: center; margin-top: 20px;">
+                <button id="confirmYesBtn" class="btn btn-success">Yes</button>
+                <button id="confirmNoBtn" class="btn btn-danger">No</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html> 
