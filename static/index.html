@@ -9,31 +9,63 @@
 <body>
     <div class="container">
         <div class="cover-page">
-            <h1 class="app-title">TUKKALAH</h1>
+            <h1 class="app-title" style="margin-bottom: 40px; font-family: 'Montserrat', sans-serif; font-weight: 300;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 10px;"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" stroke="#A259FF" stroke-width="2" stroke-linecap="round"/></svg><span style="color:#A259FF; font-weight:300; font-size:2.2rem; vertical-align: middle; font-family: 'Montserrat', sans-serif;">TUKKALAH</span></h1>
             
-            <div class="button-group">
-                <h2 class="button-group-title">Storage Locations</h2>
-                <div class="button-row">
-                    <a href="freezer.html" class="btn btn-large">Freezer</a>
-                    <a href="fridge.html" class="btn btn-large">Fridge</a>
-                    <a href="pantry.html" class="btn btn-large">Pantry</a>
+            <!-- Storage Locations Section -->
+            <div class="section-box storage-location-box" style="padding-top: 18px;">
+                <h2 class="button-group-title" style="color:#222; font-weight:400;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 8px;"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" stroke="#A259FF" stroke-width="2" stroke-linecap="round"/></svg><span style="color:#222; font-weight:400;">Storage Locations</span></h2>
+                <div class="button-row storage-location-row">
+                    <a href="freezer.html" class="btn storage-btn" style="font-weight: 400;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" stroke="#A259FF" stroke-width="2" stroke-linecap="round"/></svg>Freezer</a>
+                    <a href="fridge.html" class="btn storage-btn" style="font-weight: 400;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><rect x="6" y="2" width="12" height="20" rx="2" stroke="#A259FF" stroke-width="2"/></svg>Fridge</a>
+                    <a href="pantry.html" class="btn storage-btn" style="font-weight: 400;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M4 4h16v16H4z" stroke="#A259FF" stroke-width="2"/><path d="M4 9h16" stroke="#A259FF" stroke-width="2"/></svg>Pantry</a>
                 </div>
             </div>
             
-            <div class="button-group">
-                <h2 class="button-group-title">Item Actions</h2>
-                <div class="button-row">
-                    <button id="addItemBtn" class="btn btn-secondary btn-large">Add Item</button>
-                    <button id="removeItemBtn" class="btn btn-secondary btn-large">Remove Item</button>
-                    <button id="updateItemBtn" class="btn btn-secondary btn-large">Update Item</button>
+            <!-- Item Actions & Inventory Management Section -->
+            <div class="section-box actions-box" style="padding-top: 18px;">
+                <h2 class="button-group-title" style="color:#222; font-weight:400;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 8px;"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#A259FF" stroke-width="2"/></svg><span style="color:#222; font-weight:400;">Item Actions</span></h2>
+                <div class="button-row actions-row" style="justify-content: space-between;">
+                    <button id="addItemBtn" class="btn action-btn" style="font-weight: 400;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Add Item</button>
+                    <button id="removeItemBtn" class="btn action-btn" style="font-weight: 400;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M6 6l12 12M6 18L18 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Remove Item</button>
+                    <button id="updateItemBtn" class="btn action-btn" style="font-weight: 400;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M4 13v7h7M20 4l-9 9" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Update Item</button>
+                    <button id="inventoryImportBtn" class="btn inventory-import-btn" style="font-weight: 400;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M12 5v14M5 12h14" stroke="#A259FF" stroke-width="2" stroke-linecap="round"/></svg>Inventory Import</button>
                 </div>
             </div>
             
-            <div class="button-group">
-                <h2 class="button-group-title">Inventory Management</h2>
-                <div class="button-row">
-                    <button id="inventoryImportBtn" class="btn btn-secondary btn-large">Inventory Import</button>
+            <!-- Inventory Summary Section -->
+            <div class="section-box inventory-summary-box" style="padding-top: 18px;">
+                <h2 class="button-group-title" style="color:#222; font-weight:400; font-size:1.2rem; margin-bottom:0;">Inventory Summary</h2>
+                <div class="summary-row">
+                    <div class="summary-btn" id="summary-freezer">
+                        <div class="summary-btn-header">
+                            <span class="summary-btn-title" style="color:#222; font-weight:700;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" stroke="#A259FF" stroke-width="2" stroke-linecap="round"/></svg>Freezer</span>
+                            <span class="summary-count" id="count-freezer">0 items</span>
+                        </div>
+                        <div class="summary-expired" id="expired-freezer" style="color:#E14D4D; font-weight:600; font-size:15px; margin-top:10px;">3 expired items</div>
+                        <a href="freezer.html" class="summary-link" style="font-size: 0.95rem; font-weight: 400;">View all freezer items <span style="font-size:1.1em;">→</span></a>
+                    </div>
+                    <div class="summary-btn" id="summary-fridge">
+                        <div class="summary-btn-header">
+                            <span class="summary-btn-title" style="color:#222; font-weight:700;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><rect x="6" y="2" width="12" height="20" rx="2" stroke="#A259FF" stroke-width="2"/></svg>Fridge</span>
+                            <span class="summary-count" id="count-fridge">0 items</span>
+                        </div>
+                        <div class="summary-expired" id="expired-fridge" style="color:#E14D4D; font-weight:600; font-size:15px; margin-top:10px; display:none;"></div>
+                        <a href="fridge.html" class="summary-link" style="font-size: 0.95rem; font-weight: 400;">View all fridge items <span style="font-size:1.1em;">→</span></a>
+                    </div>
+                    <div class="summary-btn" id="summary-pantry">
+                        <div class="summary-btn-header">
+                            <span class="summary-btn-title" style="color:#222; font-weight:700;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 6px;"><path d="M4 4h16v16H4z" stroke="#A259FF" stroke-width="2"/><path d="M4 9h16" stroke="#A259FF" stroke-width="2"/></svg>Pantry</span>
+                            <span class="summary-count" id="count-pantry">0 items</span>
+                        </div>
+                        <div class="summary-expired" id="expired-pantry" style="color:#E14D4D; font-weight:600; font-size:15px; margin-top:10px; display:none;"></div>
+                        <a href="pantry.html" class="summary-link" style="font-size: 0.95rem; font-weight: 400;">View all pantry items <span style="font-size:1.1em;">→</span></a>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Expiry Warning Section -->
+            <div class="expiry-warning-box" id="expiry-warning" style="margin: 0 0 32px 0; text-align: left; font-weight: 400;">
+                <span style="color:#E14D4D; font-weight:400;">Warning: You have <span id="expiry-warning-count">0</span> expired items in your inventory.</span>
             </div>
         </div>
     </div>

@@ -41,6 +41,7 @@ async function initApp() {
   try {
     await fetchItems();
     renderItems();
+    updateInventorySummaryAndWarning();
   } catch (error) {
     console.error('Error initializing app:', error);
     showNotification('Error initializing app: ' + error.message, 'error');
@@ -86,6 +87,7 @@ function renderItems() {
   });
   
   itemsContainer.appendChild(itemsGrid);
+  updateInventorySummaryAndWarning();
 }
 
 // Create an item card element
@@ -845,5 +847,69 @@ function showNotification(message, type) {
     }, 3000);
   } catch (error) {
     console.error('Error showing notification:', error);
+  }
+}
+
+// Update Inventory Summary and Expiry Warning
+function updateInventorySummaryAndWarning() {
+  // Count items by location and expired by location
+  let freezerCount = 0, fridgeCount = 0, pantryCount = 0;
+  let freezerExpired = 0, fridgeExpired = 0, pantryExpired = 0;
+  let expiringCount = 0;
+  const now = new Date();
+  const oneMonthFromNow = new Date();
+  oneMonthFromNow.setMonth(now.getMonth() + 1);
+
+  state.items.forEach(item => {
+    if (item.location === 'freezer') {
+      freezerCount++;
+      if (item.expiry_date && new Date(item.expiry_date) < now) freezerExpired++;
+    } else if (item.location === 'fridge') {
+      fridgeCount++;
+      if (item.expiry_date && new Date(item.expiry_date) < now) fridgeExpired++;
+    } else if (item.location === 'pantry') {
+      pantryCount++;
+      if (item.expiry_date && new Date(item.expiry_date) < now) pantryExpired++;
+    }
+    // Expired or expiring within 1 month
+    if (item.expiry_date) {
+      const expiry = new Date(item.expiry_date);
+      if (expiry < now || (expiry >= now && expiry <= oneMonthFromNow)) {
+        expiringCount++;
+      }
+    }
+  });
+
+  // Update counts
+  const freezerCountEl = document.getElementById('count-freezer');
+  const fridgeCountEl = document.getElementById('count-fridge');
+  const pantryCountEl = document.getElementById('count-pantry');
+  if (freezerCountEl) freezerCountEl.textContent = `${freezerCount} item${freezerCount === 1 ? '' : 's'}`;
+  if (fridgeCountEl) fridgeCountEl.textContent = `${fridgeCount} item${fridgeCount === 1 ? '' : 's'}`;
+  if (pantryCountEl) pantryCountEl.textContent = `${pantryCount} item${pantryCount === 1 ? '' : 's'}`;
+
+  // Update expired counts in summary cards
+  const freezerExpiredEl = document.getElementById('expired-freezer');
+  const fridgeExpiredEl = document.getElementById('expired-fridge');
+  const pantryExpiredEl = document.getElementById('expired-pantry');
+  if (freezerExpiredEl) {
+    freezerExpiredEl.textContent = freezerExpired > 0 ? `${freezerExpired} expired item${freezerExpired === 1 ? '' : 's'}` : '';
+    freezerExpiredEl.style.display = freezerExpired > 0 ? 'block' : 'none';
+  }
+  if (fridgeExpiredEl) {
+    fridgeExpiredEl.textContent = fridgeExpired > 0 ? `${fridgeExpired} expired item${fridgeExpired === 1 ? '' : 's'}` : '';
+    fridgeExpiredEl.style.display = fridgeExpired > 0 ? 'block' : 'none';
+  }
+  if (pantryExpiredEl) {
+    pantryExpiredEl.textContent = pantryExpired > 0 ? `${pantryExpired} expired item${pantryExpired === 1 ? '' : 's'}` : '';
+    pantryExpiredEl.style.display = pantryExpired > 0 ? 'block' : 'none';
+  }
+
+  // Update expiry warning
+  const expiryWarningEl = document.getElementById('expiry-warning');
+  const expiryWarningCountEl = document.getElementById('expiry-warning-count');
+  if (expiryWarningEl && expiryWarningCountEl) {
+    expiryWarningCountEl.textContent = expiringCount;
+    expiryWarningEl.style.display = expiringCount > 0 ? 'block' : 'none';
   }
 } 
